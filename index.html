@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
+  <title>Frontend Mentor | Mortgage repayment calculator</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+
+    :root {
+      --Lime: hsl(61, 70%, 52%);
+      --Red: hsl(4, 69%, 50%);
+      --White: hsl(0, 0%, 100%);
+      --Slate-100: hsl(202, 86%, 94%);
+      --Slate-300: hsl(203, 41%, 72%);
+      --Slate-500: hsl(200, 26%, 54%);
+      --Slate-700: hsl(200, 24%, 40%);
+      --Slate-900: hsl(202, 55%, 16%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--Slate-100);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* --- MAIN CONTAINER --- */
+    main {
+      display: flex;
+      background-color: var(--White);
+      width: 100%;
+      max-width: 1000px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- LEFT SIDE: FORM --- */
+    .form-entries {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .form-header h4 {
+      font-size: clamp(18px, 2vw, 24px);
+      color: var(--Slate-900);
+    }
+
+    .form-header a {
+      color: var(--Slate-700);
+      font-size: clamp(14px, 1.5vw, 16px);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .input-wrapper label,.mortgage-type label {
+      display: block;
+      color: var(--Slate-700);
+      margin-bottom: 10px;
+      font-size: clamp(16px, 2vw, 18px);
+      font-weight: 500;
+    }
+
+    /* Input Group Styling */
+    .input-wrapper { margin-bottom: 24px; }
+
+    .input-group {
+      display: flex;
+      border: 1px solid var(--Slate-500);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .input-group:focus-within { border-color: var(--Lime); }
+
+    .input-group span {
+      background-color: var(--Slate-100);
+      color: var(--Slate-700);
+      padding: 12px 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-group input {
+      border: none;
+      outline: none;
+      padding: 12px;
+      flex: 1;
+      font-size: clamp(16px, 2vw, 18px);
+      font-weight: 700;
+      color: var(--Slate-900);
+      width: 100%;
+    }
+
+    .year-per { display: flex; gap: 24px; }
+    .year-per > div { flex: 1; }
+
+    /* Custom Radio Buttons */
+    .radio-option {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid var(--Slate-500);
+      border-radius: 4px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.3s;
+    }
+
+    .radio-option:hover { border-color: var(--Lime); }
+    
+    /* Active State for selected Radio */
+    .radio-option.active {
+      background-color: hsla(61, 70%, 52%, 0.1);
+      border-color: var(--Lime);
+    }
+
+    .radio-option input {
+      margin-right: 12px;
+      accent-color: var(--Lime);
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Submit Button */
+    button[type="submit"] {
+      background-color: var(--Lime);
+      border: none;
+      border-radius: 50px;
+      padding: 16px 40px;
+      font-size:clamp(16px, 2vw, 18px);
+      font-weight: 700;
+      color: var(--Slate-900);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    button[type="submit"]:hover { background-color: hsla(61, 70%, 52%, 0.6); }
+
+    /* Error States */
+    .error-msg {
+      color: var(--Red);
+      font-size: clamp(12px, 1.5vw, 14px);
+      display: none;
+      margin-top: 8px;
+    }
+    
+
+    .input-wrapper.error .input-group { border-color: var(--Red); }
+    .input-wrapper.error .input-group span { background-color: var(--Red); color: var(--White); }
+    .input-wrapper.error .error-msg { display: block; }
+    .mortgage-type.error .error-msg { display: block; }
+
+    /* --- RIGHT SIDE: RESULTS --- */
+    .results-container {
+      flex: 1;
+      background-color: var(--Slate-900);
+      color: var(--White);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom-left-radius: 80px;
+    }
+
+    .results-content { text-align: center; }
+    .results-content img { margin-bottom: 24px; }
+    .results-content h3 { font-size: 24px; margin-bottom: 16px; }
+    .results-content p { color: var(--Slate-300); line-height: 1.5; font-size: 16px; }
+
+    /* Completed View */
+    #results-completed { text-align: left; display: none; }
+    
+    .result-card {
+      background-color: rgba(0, 0, 0, 0.25);
+      padding: 32px;
+      border-top: 4px solid var(--Lime);
+      border-radius: 8px;
+      margin-top: 32px;
+    }
+
+    .result-card h1 { color: var(--Lime); font-size: clamp(24px, 4vw, 52px); margin: 8px 0 32px 0; }
+    .result-card hr { border: 0; border-top: 1px solid var(--Slate-700); margin-bottom: 32px; }
+    .result-card h2 { font-size: clamp(18px, 2.5vw, 24px); margin-top: 8px; }
+
+    /* Attribution */
+    .attribution { font-size: 11px; text-align: center; margin-top: 20px; position: absolute; bottom: 10px; width: 100%; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      main { flex-direction: column; border-radius: 0; }
+      .results-container { border-bottom-left-radius: 0; }
+      .year-per { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <section class="form-entries">
+      <div class="form-header">
+        <h4>Mortgage Calculator</h4>
+        <a id="clear-all">Clear All</a>
+      </div>
+
+      <form id="mortgage-form" novalidate>
+        <div class="input-wrapper">
+          <label for="amount">Mortgage Amount</label>
+          <div class="input-group">
+            <span class="symbol">£</span>
+            <input type="number" id="amount">
+          </div>
+          <span class="error-msg">This field is required</span>
+        </div>
+
+        <div class="year-per">
+          <div class="input-wrapper">
+            <label for="term">Mortgage Term</label>
+            <div class="input-group">
+              <input type="number" id="term">
+              <span class="symbol">years</span>
+            </div>
+            <span class="error-msg">This field is required</span>
+          </div>
+
+          <div class="input-wrapper">
+            <label for="interest">Interest Rate</label>
+            <div class="input-group">
+              <input type="number" id="interest" step="0.01">
+              <span class="symbol">%</span>
+            </div>
+            <span class="error-msg">This field is required</span>
+          </div>
+        </div>
+
+        <div class="mortgage-type">
+          <label>Mortgage Type</label>
+          <label class="radio-option active">
+            <input type="radio" name="mortgage-type" value="repayment">
+            <span>Repayment</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="mortgage-type" value="interest-only" >
+            <span>Interest Only</span>
+          </label>
+          <span class=" error-msg">This field is required</span>
+        </div>
+        
+
+        <button type="submit">
+          <img src="./assets/images/icon-calculator.svg" alt=""> Calculate Repayments
+        </button>
+      </form>
+    </section>
+
+    <section class="results-container">
+      <div id="results-empty" class="results-content">
+        <img src="./assets/images/illustration-empty.svg" alt="">
+        <h3>Results shown here</h3>
+        <p>Complete the form and click “calculate repayments” to see what your monthly repayments would be.</p>
+      </div>
+
+      <div id="results-completed" class="results-content">
+        <h3>Your results</h3>
+        <p>Your results are shown below based on the information you provided. To adjust the results, edit the form and click “calculate repayments” again.</p>
+        
+        <div class="result-card">
+          <p>Your monthly repayments</p>
+          <h1 id="monthly-payment">£0.00</h1>
+          <hr>
+          <p>Total you'll repay over the term</p>
+          <h2 id="total-repayment">£0.00</h2>
+        </div>
+      </div>
+    </section>
+  </main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. SELECTING CORE ELEMENTS
+      const form = document.getElementById('mortgage-form');
+      const clearBtn = document.getElementById('clear-all');
+      const resultsEmpty = document.getElementById('results-empty');
+      const resultsCompleted = document.getElementById('results-completed');
+
+      // 2. FORM SUBMISSION HANDLER
+      form.addEventListener('submit', (e) => {
+        e.preventDefault(); // Prevent page reload
+        let isValid = true;
+
+        // --- VALIDATE NUMERICAL INPUTS ---
+        const numericIds = ['amount', 'term', 'interest'];
+        numericIds.forEach(id => {
+          const input = document.getElementById(id);
+          const wrapper = input.closest('.input-wrapper');
+
+          // Check if empty or zero
+          if (!input.value || input.value <= 0) {
+            wrapper.classList.add('error');
+            isValid = false;
+          } else {
+            wrapper.classList.remove('error');
+          }
+
+
+           
+      // --- VALIDATE MORTGAGE TYPE (RADIO BUTTONS) ---
+         const mortgageTypeContainer = document.querySelector('.mortgage-type');
+        const radioSelected = document.querySelector('input[name="mortgage-type"]:checked');
+            if (!radioSelected) {
+              mortgageTypeContainer.classList.add('error');
+              isValid = false;
+            } else {
+              mortgageTypeContainer.classList.remove('error');
+            }
+        });
+
+         
+
+        // --- CALCULATION LOGIC (Only runs if isValid is true) ---
+        if (isValid) {
+          const P = parseFloat(document.getElementById('amount').value); // Principal
+          const annualRate = parseFloat(document.getElementById('interest').value) / 100;
+          const monthlyRate = annualRate / 12;
+          const n = parseFloat(document.getElementById('term').value) * 12; // Total months
+          const type = radioSelected.value;
+
+          let monthly;
+          let total;
+
+          if (type === 'repayment') {
+            // Formula for Monthly Repayment: M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1 ]
+            const x = Math.pow(1 + monthlyRate, n);
+            monthly = P * (monthlyRate * x) / (x - 1);
+            total = monthly * n;
+          } else {
+            // Formula for Interest Only
+            monthly = P * monthlyRate;
+            total = (monthly * n) + P;
+          }
+
+          // 3. UPDATE THE UI
+          // Using .toLocaleString to add commas and 2 decimal places
+          document.getElementById('monthly-payment').innerText = `£${monthly.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+          document.getElementById('total-repayment').innerText = `£${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+          // Toggle visibility of results panels
+          resultsEmpty.style.display = 'none';
+          resultsCompleted.style.display = 'block';
+        }
+      });
+
+      // 4. RADIO BUTTON INTERACTION
+      // Highlights the selected radio box and clears errors
+      document.querySelectorAll('input[name="mortgage-type"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          // Remove error if user selects an option
+          document.querySelector('.mortgage-type').classList.remove('error');
+          
+          // Toggle the yellow background 'active' class
+          document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('active'));
+          radio.closest('.radio-option').classList.add('active');
+        });
+      });
+
+      // 5. CLEAR ALL FUNCTIONALITY
+      clearBtn.addEventListener('click', () => {
+        form.reset(); // Native form reset
+        
+        // Remove all error styling
+        document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+        
+        // Reset the results view back to the empty illustration
+        resultsEmpty.style.display = 'block';
+        resultsCompleted.style.display = 'none';
+        
+        // Reset the visual highlight on radio buttons
+        document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('active'));
+        // If a radio is checked by default (HTML 'checked'), highlight it
+        document.querySelector('.radio-option:has(input:checked)')?.classList.add('active');
+      });
+
+      // 6. REAL-TIME ERROR CLEARING
+      // Removes red border as soon as the user starts typing
+      form.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', () => {
+          input.closest('.input-wrapper')?.classList.remove('error');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

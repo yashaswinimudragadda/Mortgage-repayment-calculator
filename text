@@ -1,0 +1,62 @@
+<script>
+  const form = document.getElementById('mortgage-form');
+  const clearBtn = document.querySelector('.form-header a');
+  const resultsEmpty = document.getElementById('results-empty');
+  const resultsCompleted = document.getElementById(' results-completed'); // Note the space in your HTML ID
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // 1. Get Input Values
+    const amount = parseFloat(document.getElementById('amount').value);
+    const term = parseFloat(document.getElementById('term').value);
+    const rate = parseFloat(document.getElementById('interest').value) / 100;
+    const type = document.querySelector('input[name="mortgage-type"]:checked').value;
+
+    let monthlyPayment = 0;
+    let totalRepayment = 0;
+
+    // 2. Perform Calculations
+    if (type === 'repayment') {
+      // Formula: M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1 ]
+      const monthlyRate = rate / 12;
+      const numberOfPayments = term * 12;
+      const x = Math.pow(1 + monthlyRate, numberOfPayments);
+      
+      monthlyPayment = (amount * x * monthlyRate) / (x - 1);
+      totalRepayment = monthlyPayment * numberOfPayments;
+    } else {
+      // Interest Only Formula
+      monthlyPayment = (amount * rate) / 12;
+      totalRepayment = (monthlyPayment * term * 12) + amount;
+    }
+
+    // 3. Display Results
+    document.getElementById('monthly-payment').innerText = `£${monthlyPayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('total-repayment').innerText = `£${totalRepayment.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+    // 4. Toggle Visibility
+    resultsEmpty.style.display = 'none';
+    resultsCompleted.style.display = 'block';
+  });
+
+  // Clear All functionality
+  clearBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    form.reset();
+    resultsEmpty.style.display = 'flex';
+    resultsCompleted.style.display = 'none';
+    
+    // Reset Radio Active Classes if you added them
+    document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('active'));
+    document.querySelector('.radio-option:has(input:checked)')?.classList.add('active');
+  });
+
+  // Optional: Visual feedback for radio buttons
+  document.querySelectorAll('input[name="mortgage-type"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('active'));
+      radio.closest('.radio-option').classList.add('active');
+    });
+  });
+</script>
